@@ -12,6 +12,7 @@ dependencies = [
     "imagekitio>=4.2.0",
     "pytest>=9.0.1",
     "python-dotenv>=1.2.1",
+    "ruff>=0.14.8",
     "sqlmodel>=0.0.27",
     "uvicorn[atandard]>=0.38.0",
 ]

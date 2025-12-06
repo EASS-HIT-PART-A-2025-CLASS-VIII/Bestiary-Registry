@@ -3,15 +3,17 @@ import app.app as app_module
 
 client = TestClient(app_module.app)
 
+
 # Helper function to reset the application state before each test
 def reset_state():
     app_module.items_db.clear()
     app_module.counter_id = 1
 
+
 # Test creating a new creature
 def test_create_creature():
     reset_state()
-    
+
     payload = {
         "name": "Dragon",
         "mythology": "Fantasy",
@@ -28,6 +30,7 @@ def test_create_creature():
     assert data["mythology"] == payload["mythology"]
     assert data["creature_type"] == payload["creature_type"]
     assert data["danger_level"] == payload["danger_level"]
+
 
 # Test retrieving the list of creatures
 def test_get_creatures():
@@ -53,6 +56,7 @@ def test_get_creatures():
     assert creature["mythology"] == payload["mythology"]
     assert creature["creature_type"] == payload["creature_type"]
     assert creature["danger_level"] == payload["danger_level"]
+
 
 # Test updating an existing creature
 def test_update_creature():
@@ -83,6 +87,7 @@ def test_update_creature():
     assert data["mythology"] == update_payload["mythology"]
     assert data["creature_type"] == update_payload["creature_type"]
     assert data["danger_level"] == update_payload["danger_level"]
+
 
 # Test deleting a creature
 def test_delete_creature():
