@@ -12,3 +12,12 @@ wheels/
 
 # Environment files
 .env
+
+# Database
+*.db
+backend/*.db
+
+# Caches
+.pytest_cache/
+.ruff_cache/
+**/.venv/
