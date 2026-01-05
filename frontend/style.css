@@ -1,0 +1,397 @@
+/* VARIABLES */
+:root {
+    --color-primary: #7f13ec;
+    --color-bg-dark: #191022;
+    --color-surface-dark: #261933;
+    --color-border-dark: #4d3267;
+    --color-text-muted: #ad92c9;
+    --color-white: #ffffff;
+    --color-success: #4ade80;
+    --color-danger: #ef4444;
+    --color-warning: #eab308;
+}
+
+/* GLOBAL RESET */
+.stApp {
+    background-color: var(--color-bg-dark);
+    color: var(--color-white);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* REMOVE DEFAULT PADDING */
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* SIDEBAR */
+[data-testid="stSidebar"] {
+    background-color: var(--color-bg-dark);
+    border-right: 1px solid var(--color-border-dark);
+}
+
+/* INPUTS (SEARCH/FILTER) */
+/* Hack to style standard Streamlit inputs to look like the design */
+div[data-baseweb="input"] {
+    background-color: var(--color-surface-dark) !important;
+    border: 1px solid var(--color-border-dark) !important;
+    border-radius: 8px !important;
+    color: rgb(255, 255, 255) !important;
+}
+
+div[data-baseweb="input"]:focus-within {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 1px var(--color-primary) !important;
+}
+
+input[data-baseweb="input"] {
+    color: rgb(255, 255, 255) !important;
+    background-color: transparent !important;
+    padding-left: 2rem !important;
+    /* Space for faux icon */
+}
+
+/* Faux Icons for Inputs (using CSS ::after on the wrapper is hard in Streamlit, 
+   so we rely on the container relative positioning or standard placeholders) */
+
+/* METRICS CARDS */
+div[data-testid="column"]>div>div>div.element-container>div.stMarkdown>div {
+    height: 100%;
+}
+
+.metric-card {
+    background-color: var(--color-surface-dark);
+    border: 1px solid var(--color-border-dark);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.metric-label {
+    color: var(--color-text-muted);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+}
+
+.metric-trend {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* TABLE CONTAINER */
+.table-container {
+    border: none;
+    /* remove top border completely */
+    border-radius: 12px;
+    background-color: var(--color-surface-dark);
+    overflow: hidden;
+    margin-top: 24px;
+}
+
+
+/* TABLE HEADER */
+.table-header {
+    background-color: rgba(25, 16, 34, 0.5);
+    padding: 14px 16px 6px 16px;
+    border-bottom: 3px solid var(--color-border-dark);
+}
+
+.table-header p {
+    margin: 0;
+}
+
+.col-header {
+    color: var(--color-text-muted);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+/* TABLE ROW TEXT */
+.table-text {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* TABLE ROW */
+.table-row {
+    padding: 6px;
+    border-bottom: 1px solid var(--color-border-dark);
+    transition: background-color 0.15s ease-in-out;
+}
+
+.table-row:hover {
+    background-color: rgba(25, 16, 34, 0.4);
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+/* BUTTONS */
+/* Primary (Summon) */
+button[kind="primary"] {
+    background-color: #7f13ec !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 14px 0 rgba(127, 19, 236, 0.4) !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px !important;
+}
+
+button[kind="primary"]:hover {
+    background-color: #6d11cb !important;
+}
+
+/* CUSTOM HEADER */
+header[data-testid="stHeader"] {
+    background-color: transparent !important;
+    border-bottom: none !important;
+}
+
+/* Force Sidebar Toggle Icon to White */
+[data-testid="stSidebarCollapseButton"] [data-testid="stIconMaterial"],
+[data-testid="stSidebarCollapsedControl"] [data-testid="stIconMaterial"],
+[data-testid="stExpandSidebarButton"] [data-testid="stIconMaterial"] {
+    color: white !important;
+    fill: white !important;
+}
+
+/* Action Icons (Edit/Delete/Cancel) */
+/* Target all secondary buttons for a consistent ghost/transparent look */
+button[data-testid="stBaseButton-secondary"] {
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    /* Invisible border to prevent layout shift on hover */
+    padding: 0.5rem 1rem !important;
+    color: var(--color-text-muted) !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Hover State */
+button[data-testid="stBaseButton-secondary"]:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Specifically for Table Icons: Adjust size if needed, but standard button size is usually fine */
+/* If we want to target ONLY the ones in the table, it is hard without a specific parent class that Streamlit preserves. 
+   But the ghost look works well for 'Cancel' too. 
+*/
+button[data-testid="stBaseButton-secondary"] p {
+    font-size: 18px !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+}
+
+/* AVATAR */
+.avatar-img {
+    width: 48px;
+    /* Increased from 40px */
+    height: 48px;
+    /* Increased from 40px */
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* BADGES */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    /* Increased from 11px */
+    font-weight: 600;
+    border: 1px solid;
+}
+
+/* PROGRESS BAR CUSTOM */
+.progress-bar-bg {
+    width: 100%;
+    background-color: #191022;
+    height: 6px;
+    border-radius: 999px;
+    margin-top: 6px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+/* UTILS */
+.text-muted {
+    color: var(--color-text-muted);
+}
+
+.text-white {
+    color: white;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+/* Footer hidden */
+footer {
+    visibility: hidden;
+}
+
+/* SIDEBAR ICONS INJECTION */
+/* Target the buttons in the sidebar specifically.
+   Assumes the first two buttons in the sidebar are Registry and Map. */
+
+/* Shared Styles for Icon Injection */
+[data-testid='stSidebar'] button p::before {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 12px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 1. Bestiary Registry (First Button) */
+[data-testid='stSidebar'] div[data-testid='element-container']:nth-of-type(2) button p::before,
+[data-testid='stSidebar'] button:nth-of-type(1) p::before {
+    content: 'menu_book';
+}
+
+/* 2. Realm Map (Second Button) */
+[data-testid='stSidebar'] div[data-testid='element-container']:nth-of-type(3) button p::before,
+[data-testid='stSidebar'] button:nth-of-type(2) p::before {
+    content: 'map';
+}
+
+/* 3. Settings (Second to Last Element in Vertical Block) */
+[data-testid='stSidebar'] [data-testid='stVerticalBlock']>div:nth-last-child(2) button p::before {
+    content: 'settings';
+}
+
+/* 4. Log Out (Last Element in Vertical Block) */
+[data-testid='stSidebar'] [data-testid='stVerticalBlock']>div:nth-last-child(1) button p::before {
+    content: 'logout';
+}
+
+/* LOG OUT RED STYLE (Last Element) */
+[data-testid='stSidebar'] [data-testid='stVerticalBlock']>div:nth-last-child(1) button {
+    color: var(--color-danger) !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+[data-testid='stSidebar'] [data-testid='stVerticalBlock']>div:nth-last-child(1) button:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border-color: var(--color-danger) !important;
+    color: var(--color-danger) !important;
+}
+
+[data-testid='stSidebar'] [data-testid='stVerticalBlock']>div:nth-last-child(1) button p {
+    color: var(--color-danger) !important;
+}
+
+/* Fix text alignment */
+[data-testid='stSidebar'] button p {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100%;
+}
+
+/* --- Search box (st_keyup) is a custom component inside an iframe --- */
+div[data-testid^="stCustomComponent"] {
+    height: 32px !important;
+    min-height: 32px !important;
+}
+
+div[data-testid^="stCustomComponent"] iframe,
+iframe[title*="st_keyup"],
+iframe[title*="key_up"] {
+    height: 40px !important;
+    min-height: 40px !important;
+    margin-top: -30px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    display: block !important;
+}
+
+
+
+/* Space to the right of column C4 (Danger Level) */
+.col-danger {
+    padding-right: 20px;
+}
+
+
+
+/* --- ADVANCED FILTERS (Popover & Widgets) --- */
+
+/* Popover Button */
+div[data-testid="stPopover"] button {
+    border-color: var(--color-border-dark) !important;
+    color: var(--color-text-muted) !important;
+    font-weight: 400 !important;
+}
+
+div[data-testid="stPopover"] button:hover {
+    border-color: var(--color-primary) !important;
+    color: rgb(255, 255, 255) !important;
+}
+
+/* MultiSelect */
+.stMultiSelect label p {
+    color: var(--color-text-muted) !important;
+}
+
+/* The input box of multiselect */
+.stMultiSelect div[data-baseweb="select"]>div {
+    background-color: var(--color-white) !important;
+    border-color: var(--color-border-dark) !important;
+}
+
+/* Chips (Selected Items) */
+div[data-baseweb="tag"] {
+    background-color: rgba(127, 19, 236, 0.15) !important;
+    border: 1px solid rgba(127, 19, 236, 0.3) !important;
+}
+
+div[data-baseweb="tag"] span {
+    color: #ccaadd50 !important;
+    /* Light purple text */
+}
+
+/* Slider */
+.stSlider label p {
+    color: var(--color-text-muted) !important;
+}
