@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
-
+st.write("DEBUG API_URL:", API_URL)
 
 # --- CSS Styling ---
 def load_css():
