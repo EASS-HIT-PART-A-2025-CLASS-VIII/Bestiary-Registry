@@ -20,7 +20,6 @@ st.set_page_config(
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 
-
 def load_css():
     # Inject Fonts (Material Symbols etc.)
     st.markdown(
@@ -38,9 +37,6 @@ def load_css():
 
 
 load_css()
-
-
-
 
 
 def format_time_ago(iso_str):
@@ -95,9 +91,6 @@ def update_creature(id, payload):
         api_utils.clear_cache()
     except Exception as e:
         st.error(f"Error: {e}")
-
-
-
 
 
 @st.dialog("Summon New Creature")

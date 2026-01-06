@@ -135,6 +135,19 @@ uv run python -m streamlit run ../frontend/dashboard.py
 ```
 *The dashboard will auto-launch at `http://localhost:8501`*
 
+### 3. Docker Setup (Optional)
+Run the backend in a containerized environment.
+
+```powershell
+# Build the image
+cd backend
+docker build -t bestiary-backend .
+
+# Run the container
+docker run -d -p 8000:8000 --name bestiary-api bestiary-backend
+```
+*Access the API at `http://localhost:8000/docs`*
+
 ---
 
 ## 📚 API Documentation

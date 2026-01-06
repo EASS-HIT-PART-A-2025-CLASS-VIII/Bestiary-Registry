@@ -2,7 +2,6 @@ import streamlit as st
 
 
 def render_sidebar(current_view: str):
-
     st.sidebar.markdown(
         """
         <div style="margin-bottom: 2rem;">
@@ -48,7 +47,6 @@ def render_sidebar(current_view: str):
     st.sidebar.markdown(
         '<div style="flex-grow: 1; height: 100px;"></div>', unsafe_allow_html=True
     )  # Spacer
-
 
     st.sidebar.markdown(
         """
