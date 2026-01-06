@@ -1,9 +1,7 @@
 import requests
 import api_utils
 import streamlit as st
-import os
-
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+import api_client
 
 
 @st.dialog("Edit Class")
@@ -28,13 +26,10 @@ def edit_class_dialog(c):
             "text_color": e_color,
         }
         try:
-            res = requests.put(f"{API_URL}/classes/{c['id']}", json=payload)
-            if res.status_code == 200:
-                api_utils.clear_cache()
-                st.success("Updated!")
-                st.rerun()
-            else:
-                st.error(f"Error: {res.text}")
+            api_client.update_class(c['id'], payload)
+            api_utils.clear_cache()
+            st.success("Updated!")
+            st.rerun()
         except Exception as e:
             st.error(f"Error: {e}")
 
@@ -53,7 +48,7 @@ def delete_class_dialog(c):
     with col2:
         if st.button("Yes, Delete", type="primary", use_container_width=True):
             try:
-                requests.delete(f"{API_URL}/classes/{c['id']}")
+                api_client.delete_class(c['id'])
                 api_utils.clear_cache()
                 st.rerun()
             except Exception as e:
@@ -70,16 +65,10 @@ def render_settings():
         st.markdown("Manage the classes available for summoning and filtering.")
 
         # Fetch existing classes
-        try:
-            res = requests.get(f"{API_URL}/classes/")
-            if res.status_code == 200:
-                classes = res.json()
-            else:
-                st.error("Failed to fetch classes.")
-                classes = []
-        except Exception:
-            st.error("Backend offline.")
-            classes = []
+        # Fetch existing classes
+        classes = api_utils.get_classes()
+        if not classes:
+            st.warning("Backend offline or no classes found.")
 
         col_new, col_list = st.columns([1, 2])
 
@@ -107,13 +96,10 @@ def render_settings():
                         }
 
                         try:
-                            r = requests.post(f"{API_URL}/classes/", json=payload)
-                            if r.status_code == 200:
-                                api_utils.clear_cache()
-                                st.success(f"Added {new_name}!")
-                                st.rerun()
-                            else:
-                                st.error(r.text)
+                            api_client.create_class(payload)
+                            api_utils.clear_cache()
+                            st.success(f"Added {new_name}!")
+                            st.rerun()
                         except Exception as e:
                             st.error(f"Error: {e}")
 

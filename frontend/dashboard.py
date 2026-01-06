@@ -8,6 +8,7 @@ from st_keyup import st_keyup
 import streamlit.components.v1 as components
 import os
 import api_utils
+import api_client
 
 
 st.set_page_config(
@@ -17,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+
 
 
 def load_css():
@@ -77,7 +78,7 @@ def get_classes():
 
 def delete_creature(id):
     try:
-        requests.delete(f"{API_URL}/creatures/{id}")
+        api_client.delete_creature(id)
         api_utils.clear_cache()
         return True
     except Exception as e:
@@ -87,7 +88,7 @@ def delete_creature(id):
 
 def update_creature(id, payload):
     try:
-        requests.put(f"{API_URL}/creatures/{id}", json=payload)
+        api_client.update_creature(id, payload)
         api_utils.clear_cache()
     except Exception as e:
         st.error(f"Error: {e}")
@@ -183,7 +184,7 @@ def summon_dialog():
                 # last_modify auto-set by backend
             }
             try:
-                requests.post(f"{API_URL}/creatures/", json=payload)
+                api_client.create_creature(payload)
                 api_utils.clear_cache()
                 st.success("Entity Summoned!")
                 st.rerun()
