@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from sqlmodel import select
+import seed_classes # Import our new script
 from app.db import SessionDep
 from app.models import (
     CreatureClass,
@@ -10,6 +11,18 @@ from app.models import (
 )
 
 router = APIRouter(prefix="/classes", tags=["classes"])
+
+
+@router.post("/seed")
+def seed_default_classes():
+    """
+    Populate the database with default creature classes if they are missing.
+    """
+    try:
+        results = seed_classes.seed_classes()
+        return {"message": "Seeding complete", "details": results}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/", response_model=CreatureClassRead)
