@@ -1,4 +1,3 @@
-import requests
 import api_utils
 import streamlit as st
 import api_client
@@ -26,7 +25,7 @@ def edit_class_dialog(c):
             "text_color": e_color,
         }
         try:
-            api_client.update_class(c['id'], payload)
+            api_client.update_class(c["id"], payload)
             api_utils.clear_cache()
             st.success("Updated!")
             st.rerun()
@@ -48,7 +47,7 @@ def delete_class_dialog(c):
     with col2:
         if st.button("Yes, Delete", type="primary", use_container_width=True):
             try:
-                api_client.delete_class(c['id'])
+                api_client.delete_class(c["id"])
                 api_utils.clear_cache()
                 st.rerun()
             except Exception as e:
