@@ -10,6 +10,12 @@ import api_utils
 import api_client
 
 
+# --- Flash Message Check ---
+if "toast_msg" in st.session_state:
+    msg, icon = st.session_state.pop("toast_msg")
+    st.toast(msg, icon=icon)
+
+
 st.set_page_config(
     page_title="Mythical Creature Dashboard",
     page_icon="🐉",
@@ -183,7 +189,7 @@ def summon_dialog():
             try:
                 api_client.create_creature(payload)
                 api_utils.clear_cache()
-                st.success("Entity Summoned!")
+                st.session_state["toast_msg"] = ("Entity Summoned Successfully! 🐉", "✅")
                 st.rerun()
             except Exception as e:
                 st.error(f"Failed: {e}")
@@ -220,7 +226,8 @@ def edit_dialog(c):
         }
         update_creature(c["id"], payload)
         # update_creature calls api_utils.clear_cache() now so we don't need to add it here explicitly if we modify update_creature
-        st.success("Updated!")
+        # update_creature calls api_utils.clear_cache() now so we don't need to add it here explicitly if we modify update_creature
+        st.session_state["toast_msg"] = (f"{name} updated successfully!", "✅")
         st.rerun()
 
 
@@ -236,6 +243,7 @@ def banish_dialog(c):
     with col2:
         if st.button("Yes, Banish", type="primary", use_container_width=True):
             if delete_creature(c["id"]):
+                st.session_state["toast_msg"] = ("Entity Banished! 💨", "🗑️")
                 st.rerun()
 
 
