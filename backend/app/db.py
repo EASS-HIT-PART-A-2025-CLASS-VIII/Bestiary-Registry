@@ -1,13 +1,19 @@
+import os
 from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
 # --- Database Setup ---
-sqlite_file_name = "creatures.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+# On Render: set DATABASE_URL to the Postgres "Internal Database URL"
+# Locally (or if DATABASE_URL is missing): fall back to SQLite file creatures.db
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///creatures.db")
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    # Needed only for SQLite
+    connect_args = {"check_same_thread": False}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 
 def create_db_and_tables():
