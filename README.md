@@ -46,7 +46,9 @@ A streamlined workflow for adding new creatures to the registry.
 *   **Step 2: Details** - Filling in creature attributes (Class, Mythology, Danger Level).
 
 <p align="center">
-  <img src="frontend/pictures/create_creature2_pic.png" alt="Confirmation" width="300" style="border: 1px solid #000;">
+  <kbd>
+    <img src="frontend/pictures/create_creature2_pic.png" alt="Confirmation" width="300" >
+  </kbd>
 </p>
 
 *   **Step 3: Creation** - Pressing the 'Summon Entity' button creates a new creature and adds it into the registry.
@@ -56,14 +58,18 @@ A streamlined workflow for adding new creatures to the registry.
 Modify existing records with ease, updating attributes like Danger Level, Habitat, or Class as the lore evolves.
 
 <p align="center">
-  <img src="frontend/pictures/edit_creature_pic.png" alt="Editing" width="300" style="border: 1px solid #000;">
+  <kbd>
+    <img src="frontend/pictures/edit_creature_pic.png" alt="Editing" width="300" >
+  </kbd>
 </p>
 
 ### 4. Advanced Filtering
 Drill down into the data using powerful multi-select filters for Class, Mythology, and Danger Level ranges.
 
 <p align="center">
-  <img src="frontend/pictures/filter_pic.png" alt="Filtering" width="300" style="border: 1px solid #000;">
+  <kbd>
+    <img src="frontend/pictures/filter_pic.png" alt="Filtering" width="300" >
+  </kbd>
 </p>
 
 ### 5. System Settings
