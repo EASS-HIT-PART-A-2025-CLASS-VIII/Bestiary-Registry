@@ -21,3 +21,4 @@ backend/*.db
 .pytest_cache/
 .ruff_cache/
 **/.venv/
+seed_remote.py
