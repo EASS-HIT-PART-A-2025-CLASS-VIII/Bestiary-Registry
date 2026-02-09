@@ -1,4 +1,4 @@
-# Bestiary Registry — Mythical Creature Management System (EX1–EX3)
+# Bestiary Registry — Mythical Creature Management System
 
 A full-stack course project that evolves across three exercises:
 
@@ -221,7 +221,6 @@ cd backend
 uv run streamlit run ../frontend/dashboard.py
 ```
 
----
 
 ---
 
