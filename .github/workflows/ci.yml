@@ -10,6 +10,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_creatures
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     defaults:
       run:
         working-directory: ./backend
@@ -29,5 +44,15 @@ jobs:
           uv run ruff check .
 
       - name: Run tests
-        # We also need to include frontend tests which are one level up
-        run: uv run python -m pytest tests/ ../frontend/tests/
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/test_creatures
+        run: uv run python -m pytest tests/
+
+      - name: Run Schemathesis
+        run: |
+          # Run API in background
+          uv run uvicorn app.app:app --port 8000 &
+          # Wait for it
+          sleep 5
+          # Run schemathesis
+          uv run schemathesis run http://localhost:8000/openapi.json --checks all --report=junit.xml

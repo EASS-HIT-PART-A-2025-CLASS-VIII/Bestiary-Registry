@@ -22,3 +22,7 @@ backend/*.db
 .ruff_cache/
 **/.venv/
 seed_remote.py
+
+backend/test_report.txt
+backend/.hypothesis/
+.hypothesis/

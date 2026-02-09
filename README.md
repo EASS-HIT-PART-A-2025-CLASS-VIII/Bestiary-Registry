@@ -1,28 +1,67 @@
-# 🐉 Bestiary Registry - Mythical Creature Management System
+# Bestiary Registry — Mythical Creature Management System (EX1–EX3)
 
-![Status](https://img.shields.io/badge/Status-Active-success)
-![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688)
-![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-FF4B4B)
+A full-stack course project that evolves across three exercises:
 
-This project implements **EX1 (FastAPI Backend)** and **EX2 (Streamlit Frontend)**. It is a registry for managing a "Bestiary" of mythical creatures, allowing users to catalogue and view entities across different mythologies.
+- **EX1**: Dockerized **FastAPI** backend (clean layering + tests)
+- **EX2**: **Streamlit** frontend that talks **only** to the main backend
+- **EX3**: Multi-service setup via **Docker Compose** (main backend + PostgreSQL + AI service + Redis/worker + frontend)
 
-## Important Links
-*   **Backend (Render)**: [https://bestiary-registry.onrender.com](https://bestiary-registry.onrender.com)
-*   **Frontend (Streamlit)**: [https://bestiary-registry.streamlit.app](https://bestiary-registry.streamlit.app)
-*   **API Documentation**: [https://bestiary-registry.onrender.com/docs](https://bestiary-registry.onrender.com/docs)
+---
 
-## Backend - What Exists
-*   **FastAPI** backend with full CRUD support for creatures and classes.
-*   **SQLite** used for persistence.
-*   Returns standard JSON responses with appropriate HTTP status codes (e.g., 404 for missing resources).
+## What you can do
 
-## Frontend - What the User Can Do
-*   Implemented using **Streamlit**.
-*   View existing registry data fetched from the backend.
-*   Supports full CRUD workflows for creatures and classes via the frontend.
+- Manage a registry (“bestiary”) of mythical creatures with **CRUD** operations.
+- Manage supporting entities such as **classes/categories** and **tags**.
+- (EX3) Trigger **AI image generation** for a creature via the main backend (the frontend never calls the AI service directly).
+- (EX3) Use a real database (**PostgreSQL**) with **migrations** and **seed data**.
 
-It features persistent data management, dynamic real-time filtering, automated avatar generation, and a responsive dark-mode UI.
+---
+
+## Important links
+
+- **Frontend (local)**: http://localhost:8501  
+- **Backend (local)**: http://localhost:8000  
+- **API docs (local)**: http://localhost:8000/docs  
+- **Health check (local)**: http://localhost:8000/health  
+
+> If you deployed (Render / Streamlit Cloud), add your deployed links here.
+
+---
+
+## Architecture (EX3)
+
+**Service boundaries (required):**
+- `frontend` → **main-backend only**
+- `main-backend` → `db` (PostgreSQL) + `ai-service` + `redis` (worker queue)
+
+**Services in `compose.yaml`:**
+- **main-backend** (FastAPI): public API for the UI, orchestrates DB + AI calls
+- **db** (PostgreSQL): persistent storage
+- **redis**: queue backend for background jobs
+- **worker**: async job runner (image generation, etc.)
+- **ai-service** (FastAPI): AI image generation HTTP API
+- **frontend** (Streamlit): UI
+
+### Configuration (Environment Variables)
+
+Recommended settings for `.env`:
+
+| Variable | Description | Default | Required? |
+| :--- | :--- | :--- | :--- |
+| `GEMINI_API_KEY` | Google Gemini API key for image generation. | `change_me` | Yes (unless Mock Mode) |
+| `MOCK_MODE` | Set to `1` or `true` to skip real API calls. | `0` | No |
+| `SECRET_KEY` | Secret for JWT authentication security. | `change_me...` | Yes |
+| `POSTGRES_USER` | Database user. | `postgres` | Yes (in docker) |
+| `POSTGRES_PASSWORD` | Database password. | `postgres` | Yes (in docker) |
+| `POSTGRES_DB` | Database name. | `creatures` | Yes (in docker) |
+
+<!-- PROTECTED:IMAGE_FLOW:BEGIN -->
+**Flow**:
+1.  User creates a creature via **Frontend**.
+2.  **Frontend** POSTs to **Main Backend**.
+3.  **Main Backend** saves to **DB** (status: `pending`) and enqueues a job in **Redis**.
+4.  **Worker** picks up the job, requests image from **AI Service**, saves the result to shared volume, and updates **DB**.
+<!-- PROTECTED:IMAGE_FLOW:END -->
 
 ---
 
@@ -81,119 +120,177 @@ Manage global configurations, including the creation and customization of Creatu
 
 ---
 
-## Key Features
+## Key features
 
-*   **FastAPI Backend**: Backend implemented using **FastAPI** with auto-generated Swagger/OpenAPI documentation.
-*   **Persistent Storage**: Uses **SQLite** with **SQLModel** (ORM) for local data persistence.
-*   **Streamlit Frontend**: Streamlit-based frontend with custom CSS styling and interactive UI components.
-*   **Real-Time Exploration**:
-    *   **Instant Search**: Filter by name as you type.
-    *   **Multi-Faceted Filtering**: Filter by multiple categories simultaneously.
-*   **Realm Map**: Visual territory mapping.
-*   **Avatars**: Uses DiceBear identicon API. Images are external URLs.
-*   **Testing**: API tests implemented using pytest and FastAPI TestClient.
+- **FastAPI backend** with OpenAPI/Swagger docs
+- **SQLModel** models + repository/service layering
+- **Alembic migrations** (EX3)
+- **Seed script** for deterministic local/demo data (EX3)
+- **Automated tests** with `pytest` + `FastAPI TestClient`
+- **Ruff** formatting + linting
+- **Docker Compose**: one command to bring up the full stack
 
 ---
 
-## Technology Stack
+## Tech stack
 
 | Component | Technologies |
-| :--- | :--- |
-| **Backend** | Python 3.11+, FastAPI, Uvicorn, SQLModel (Pydantic + SQLAlchemy) |
-| **Frontend** | Streamlit, Requests, Custom CSS, `streamlit-keyup` |
-| **Database** | SQLite (Local file: `creatures.db`) |
-| **Tooling** | `uv` (Package Management), Pytest, Ruff (Linting) |
+| --- | --- |
+| Backend | Python 3.13+, FastAPI, Uvicorn, SQLModel |
+| DB (EX3) | PostgreSQL, Alembic (migrations) |
+| Worker/Queue (EX3) | Redis, ARQ worker |
+| AI service (EX3) | FastAPI (HTTP), external AI provider integration (configurable) |
+| Frontend | Streamlit, Requests/HTTPX, custom UI styling |
+| Tooling | `uv`, Pytest, Ruff, GitHub Actions (CI), Schemathesis (API checks) |
 
 ---
 
-## 📂 Project Structure
+## Project structure (high level)
 
 ```text
-EX1_FastAPI_Foundations/
+.
 ├── backend/
-│   ├── app/
-│   │   ├── routers/       # API Route modules (creatures, classes)
-│   │   ├── services/      # Business logic layer
-│   │   ├── models.py      # Database schemas & Pydantic models
-│   │   └── db.py          # Database connection & session management
-│   ├── tests/             # Backend automated tests
-│   ├── main.py            # Application entry point
-│   └── pyproject.toml     # Backend dependencies
-├── frontend/
-│   ├── tests/             # Frontend automated tests
-│   ├── pictures/          # Static assets
-│   ├── dashboard.py       # Main Application Entry Point
-│   ├── sidebar.py         # Navigation component
-│   ├── settings.py        # Settings & Configuration page
-│   ├── realm_map.py       # Map visualization module
-│   └── style.css          # Global visual styling/theming
-└── README.md
+│   ├── app/                     # Main application code
+│   │   ├── routers/             # API Endpoints
+│   │   ├── services/            # Business logic
+│   │   └── models.py            # Database schemas
+│   ├── tests/                   # Backend tests
+│   └── alembic/                 # Database migrations
+├── ai-service/                  # Independent AI image generation service
+├── frontend/                    # Streamlit Dashboard code
+├── compose.yaml                 # Docker Compose configuration
+└── scripts/                     # Helper utilities
+```
+
+## Quick start (recommended): Docker Compose (EX3)
+
+### Prerequisites
+- Docker Desktop (or Docker Engine) with Compose
+- (Optional) `uv` + Python 3.13+ if you also want to run things outside Docker
+
+### 1) Configure environment
+Create a local `.env` file from the template:
+
+```powershell
+cp .env.example .env
+# Fill in the required values in .env (only what your project actually uses).
+```
+
+### 2) Start the full stack
+From the repository root:
+
+```powershell
+docker compose up --build
+```
+
+Then open:
+- **Frontend**: http://localhost:8501
+- **Backend API**: http://localhost:8000/docs
+
+---
+
+## Setup & seeding (EX3)
+
+### Apply migrations
+```powershell
+docker compose exec main-backend uv run alembic upgrade head
+# If your backend service name in compose.yaml is not main-backend, replace it accordingly.
+```
+
+### Seed data
+```powershell
+docker compose exec main-backend uv run python -m app.seed
+# If your backend service name in compose.yaml is not main-backend, replace it accordingly.
 ```
 
 ---
 
-## Quick Start Guide
+## Local development (without Docker)
 
-### Prerequisites
-*   Python 3.11 or higher
-*   `uv` package manager (recommended) or `pip`
+### Backend
+```powershell
+cd backend
+uv sync
+uv run uvicorn app.app:app --reload --port 8000
+```
 
-### 1. Backend Setup
-Initialize the backend environment and start the API server.
+### Frontend
+```powershell
+# from repo root
+cd backend
+uv run streamlit run ../frontend/dashboard.py
+```
+
+---
+
+---
+
+## API Examples
+
+Quickly test the API using `curl`:
+
+**1. Create a Creature**
+```bash
+curl -X POST "http://localhost:8000/creatures/" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "name": "Phoenix",
+           "creature_type": "Bird",
+           "mythology": "Greek",
+           "danger_level": 8,
+           "habitat": "Volcano"
+         }'
+```
+
+**2. List Creatures**
+```bash
+curl "http://localhost:8000/creatures/"
+```
+
+---
+
+## Tests
+
+Run backend tests:
 
 ```powershell
 cd backend
-uv sync               # Install dependencies
-uv run python main.py # Start server at http://localhost:8000
-```
-
-### 2. Frontend Setup
-Launch the dashboard interface. (Open a new terminal window).
-
-```powershell
-# Ensure you are in the project root
-cd backend 
-uv run python -m streamlit run ../frontend/dashboard.py
-```
-*The dashboard will auto-launch at `http://localhost:8501`*
-
----
-
-## Docker (Alternative Run Method)
-The backend is dockerized. A `Dockerfile` exists and builds successfully.
-
-If you prefer running via Docker (backend only):
-```powershell
-# Run from 'backend' directory
-docker build -t bestiary-backend .
-docker run -d -p 8000:8000 bestiary-backend
+uv run python -m pytest
 ```
 
 ---
 
-## API Documentation
+## Code quality (Ruff)
 
-Once the backend is running, full interactive documentation is available:
-*   **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
-*   **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
-
-## Testing
-Includes automated API tests using `pytest` and `FastAPI TestClient`, verified to run successfully from the backend environment.
-
-Run the full verified test suite:
-```powershell
-uv run python -m pytest tests/ ../frontend/tests/
-# (Run from 'backend' directory)
-```
-*Tests pass successfully.*
-
-## Code Quality
-Uses `ruff` for code formatting and linting.
+From repo root:
 
 ```powershell
-uv run ruff check .
 uv run ruff format --check .
+uv run ruff check .
 ```
 
-## 📝 Note
-This project serves as a foundation for further course work.
+To auto-format:
+
+```powershell
+uv run ruff format .
+```
+
+
+---
+
+## Troubleshooting
+
+### Top Issues
+
+1.  **"Port already in use"**
+    -   Stop other containers: `docker compose down` or check if local modules are running.
+    -   Host ports `8000` (Backend) and `8501` (Frontend) must be free.
+
+2.  **"Image generation failed"**
+    -   Check `ai-service` logs: `docker compose logs ai-service`
+    -   Verify `GEMINI_API_KEY` is valid in `.env`.
+    -   Ensure `MOCK_MODE=0` if you want real images.
+
+3.  **"Database connection failed"**
+    -   Wait 10-15 seconds for Postgres to initialize on first run.
+    -   Check logs: `docker compose logs db`
