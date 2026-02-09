@@ -7,7 +7,7 @@ API_URL = "http://localhost:8000"
 def test_backend():
     print("--- Starting Backend Tests ---")
 
-    # 1. Test Creating Creature with New Class
+    # Test 1: Auto-creation of class.
     print("\n1. Testing Auto-Creation of New Class...")
     new_class_name = f"TestClass_{int(time.time())}"
     creature_name = f"TestCreature_{int(time.time())}"
@@ -41,7 +41,7 @@ def test_backend():
         print(f"FAILED: Class '{new_class_name}' was NOT found in /classes/ list.")
         return
 
-    # 2. Test Cascading Update
+    # Test 2: Cascading updates.
     print("\n2. Testing Cascading Update (Rename Class)...")
     class_id = class_found["id"]
     renamed_class_name = f"{new_class_name}_RENAMED"

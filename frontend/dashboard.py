@@ -8,6 +8,9 @@ import streamlit.components.v1 as components
 import os
 import api_utils
 import api_client
+from urllib.parse import urljoin
+
+PUBLIC_BACKEND_URL = os.getenv("PUBLIC_BACKEND_URL", "http://localhost:8000")
 
 
 # --- Flash Message Check ---
@@ -189,7 +192,10 @@ def summon_dialog():
             try:
                 api_client.create_creature(payload)
                 api_utils.clear_cache()
-                st.session_state["toast_msg"] = ("Entity Summoned Successfully! 🐉", "✅")
+                st.session_state["toast_msg"] = (
+                    "Entity Summoned Successfully! 🐉",
+                    "✅",
+                )
                 st.rerun()
             except Exception as e:
                 st.error(f"Failed: {e}")
@@ -537,10 +543,13 @@ for c in filtered:
 
     # 1. Name
     with c1:
+        raw_path = c.get("image_url")  # e.g. "/static/creatures/22.png" (relative)
         img_url = (
-            c.get("image_url")
-            or f"https://api.dicebear.com/7.x/identicon/svg?seed={c['name']}"
+            urljoin(PUBLIC_BACKEND_URL, raw_path)
+            if raw_path
+            else f"https://api.dicebear.com/7.x/identicon/svg?seed={c['name']}"
         )
+
         st.markdown(
             f"""
         <div style="display: flex; align-items: center; gap: 12px;">

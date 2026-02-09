@@ -104,7 +104,10 @@ def render_settings():
                         try:
                             api_client.create_class(payload)
                             api_utils.clear_cache()
-                            st.session_state["toast_msg"] = (f"Class '{new_name}' added!", "✨")
+                            st.session_state["toast_msg"] = (
+                                f"Class '{new_name}' added!",
+                                "✨",
+                            )
                             st.rerun()
                         except Exception as e:
                             st.error(f"Error: {e}")

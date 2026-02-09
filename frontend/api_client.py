@@ -5,23 +5,43 @@ import os
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 
+# def get_creatures():
+#     try:
+#         response = requests.get(f"{API_URL}/creatures/")
+#         if response.status_code == 200:
+#             return response.json()
+#         return []
+#     except Exception:
+#         return []
+
+
+# def get_classes():
+#     try:
+#         response = requests.get(f"{API_URL}/classes/")
+#         if response.status_code == 200:
+#             return response.json()
+#         return []
+#     except Exception:
+#         return []
+
+
 def get_creatures():
     try:
-        response = requests.get(f"{API_URL}/creatures/")
-        if response.status_code == 200:
-            return response.json()
-        return []
-    except Exception:
+        response = requests.get(f"{API_URL}/creatures/", timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print("get_creatures failed:", repr(e))
         return []
 
 
 def get_classes():
     try:
-        response = requests.get(f"{API_URL}/classes/")
-        if response.status_code == 200:
-            return response.json()
-        return []
-    except Exception:
+        response = requests.get(f"{API_URL}/classes/", timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print("get_classes failed:", repr(e))
         return []
 
 
