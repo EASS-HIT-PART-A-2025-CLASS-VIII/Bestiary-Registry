@@ -1,36 +1,8 @@
-import pytest
+# Test fixtures moved to conftest.py
+
+# Happy Path Tests
+
 from fastapi.testclient import TestClient
-from sqlmodel import Session, SQLModel, create_engine
-from sqlmodel.pool import StaticPool
-
-from app.app import app
-from app.db import get_session
-
-# 1. Setup In-Memory Database for Testing
-engine = create_engine(
-    "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
-)
-
-
-@pytest.fixture(name="session")
-def session_fixture():
-    SQLModel.metadata.create_all(engine)
-    with Session(engine) as session:
-        yield session
-    SQLModel.metadata.drop_all(engine)
-
-
-@pytest.fixture(name="client")
-def client_fixture(session: Session):
-    def get_session_override():
-        return session
-
-    app.dependency_overrides[get_session] = get_session_override
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-
-
-# --- Happy Path Tests ---
 
 
 def test_create_creature(client: TestClient):
@@ -46,7 +18,9 @@ def test_create_creature(client: TestClient):
     data = response.json()
     assert data["name"] == payload["name"]
     assert "id" in data
-    assert "api.dicebear.com" in data["image_url"]
+    # Verify asynchronous image status.
+    assert data["image_status"] == "pending"
+    assert data["image_url"] is None
 
 
 def test_get_creatures(client: TestClient):
@@ -111,7 +85,7 @@ def test_delete_creature(client: TestClient):
     assert creature_id not in current_ids
 
 
-# --- Negative Tests (404 Not Found) ---
+# Error Handling Tests (404)
 
 
 def test_get_creature_not_found(client: TestClient):
@@ -138,7 +112,7 @@ def test_delete_creature_not_found(client: TestClient):
     assert response.json()["detail"] == "Creature not found"
 
 
-# --- Validation Tests (422 Unprocessable Entity) ---
+# Validation Tests (422)
 
 
 def test_create_creature_missing_field(client: TestClient):
@@ -153,8 +127,8 @@ def test_create_creature_missing_field(client: TestClient):
 
 
 def test_create_creature_invalid_type(client: TestClient):
-    # 'danger_level' should be int, verify string fails if pydantic strict mode or if it can't coerce
-    # Pydantic often coerces "10" to 10. Let's send "Very Dangerous" which can't be int.
+    # Verify strict type checking for 'danger_level'.
+    # Sending a non-integer string should result in validation error.
     payload = {
         "name": "Bad Data",
         "mythology": "Norse",
@@ -165,7 +139,7 @@ def test_create_creature_invalid_type(client: TestClient):
     assert response.status_code == 422
 
 
-# --- State Persistence Verification ---
+# State Persistence Verification
 
 
 def test_create_then_list(client: TestClient):
@@ -188,8 +162,8 @@ def test_create_then_list(client: TestClient):
 
 
 def test_update_then_read_reflects_change(client: TestClient):
-    """Verify that an update is immediately visible in a get-one call."""
-    # 1. Create
+    """Verify that an update is immediately visible in a subsequent read."""
+    # Create
     res = client.post(
         "/creatures/",
         json={
@@ -201,7 +175,7 @@ def test_update_then_read_reflects_change(client: TestClient):
     )
     cid = res.json()["id"]
 
-    # 2. Update
+    # Update
     client.put(
         f"/creatures/{cid}",
         json={
@@ -212,7 +186,7 @@ def test_update_then_read_reflects_change(client: TestClient):
         },
     )
 
-    # 3. Read
+    # Read
     res = client.get(f"/creatures/{cid}")
     assert res.status_code == 200
     assert res.json()["name"] == "V2"  # Should match V2

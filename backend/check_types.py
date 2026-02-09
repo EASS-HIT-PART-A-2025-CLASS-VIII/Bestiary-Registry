@@ -4,6 +4,7 @@ from app.models import Creature
 
 
 def check_types():
+    """List all distinct creature types in the database."""
     with Session(engine) as session:
         statement = select(Creature.creature_type).distinct()
         results = session.exec(statement).all()

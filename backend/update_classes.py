@@ -21,12 +21,11 @@ def update_creature_classes():
 
         count = 0
         for creature in creatures:
-            # old_type = creature.creature_type # Unused
+            # old_type = creature.creature_type
             new_type = random.choice(NEW_CLASSES)
             creature.creature_type = new_type
             session.add(creature)
             count += 1
-            # Optional: Log the change
             # print(f"Updated {creature.name}: {old_type} -> {new_type}")
 
         session.commit()

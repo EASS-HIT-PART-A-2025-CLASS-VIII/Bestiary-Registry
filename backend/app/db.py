@@ -3,14 +3,13 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-# --- Database Setup ---
-# On Render: set DATABASE_URL to the Postgres "Internal Database URL"
-# Locally (or if DATABASE_URL is missing): fall back to SQLite file creatures.db
+# Database setup.
+# Uses `DATABASE_URL` environment variable, defaulting to SQLite for local development.
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///creatures.db")
 
 connect_args = {}
 if DATABASE_URL.startswith("sqlite"):
-    # Needed only for SQLite
+    # SQLite-specific configuration for thread safety.
     connect_args = {"check_same_thread": False}
 
 engine = create_engine(DATABASE_URL, connect_args=connect_args)

@@ -55,6 +55,7 @@ DEFAULT_CLASSES = [
 
 
 def seed_classes():
+    """Seed default creature classes if they do not exist."""
     with Session(engine) as session:
         print("Checking for existing classes...")
         added_count = 0

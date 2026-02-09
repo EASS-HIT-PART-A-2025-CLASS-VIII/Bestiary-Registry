@@ -9,7 +9,7 @@ from app.models import (
 
 
 def create_class(session: Session, class_data: CreatureClassCreate) -> CreatureClass:
-    # Check uniqueness
+    # Ensure class name is unique.
     existing = session.exec(
         select(CreatureClass).where(CreatureClass.name == class_data.name)
     ).first()
@@ -45,7 +45,7 @@ def update_class(
     old_name = db_class.name
     update_data = class_update.model_dump(exclude_unset=True)
 
-    # Check if name is changing
+    # Detect name change.
     new_name = update_data.get("name")
     name_changed = new_name and new_name != old_name
 
@@ -54,7 +54,7 @@ def update_class(
 
     session.add(db_class)
 
-    # Cascade update if name changed
+    # Propagate name change to associated creatures.
     if name_changed:
         creatures = session.exec(
             select(Creature).where(Creature.creature_type == old_name)

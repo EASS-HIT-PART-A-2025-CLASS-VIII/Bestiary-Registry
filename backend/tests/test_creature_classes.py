@@ -7,7 +7,7 @@ from app.app import app
 from app.db import get_session
 from app.models import Creature
 
-# Setup In-Memory Database
+# Database Validation Fixtures
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
 )
@@ -31,7 +31,7 @@ def client_fixture(session: Session):
     app.dependency_overrides.clear()
 
 
-# --- Happy Path ---
+# Happy Path Tests
 
 
 def test_create_class(client: TestClient):
@@ -89,7 +89,7 @@ def test_delete_class(client: TestClient):
     assert res.status_code == 200
 
 
-# --- Negative Tests (404) ---
+# Error Handling Tests (404)
 
 
 def test_delete_class_not_found(client: TestClient):
@@ -105,7 +105,7 @@ def test_update_class_not_found(client: TestClient):
     assert response.json()["detail"] == "Class not found"
 
 
-# --- Validation Tests (422) ---
+# Validation Tests (422)
 
 
 def test_create_class_missing_name(client: TestClient):
