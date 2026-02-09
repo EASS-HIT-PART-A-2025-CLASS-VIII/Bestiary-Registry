@@ -1,0 +1,123 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-creatures}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend-net
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      LOG_LEVEL: info
+    networks:
+      - backend-net
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  ai-service-dev:
+    extends:
+      service: ai-service
+    profiles: [ "dev" ]
+    ports:
+      - "8001:8000"
+
+  main-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      LOG_LEVEL: info
+      SEED: "false"
+    volumes:
+      - static_data:/app/static
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    networks:
+      - backend-net
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: [ "uv", "run", "arq", "app.worker.WorkerSettings" ]
+    env_file: .env
+    environment:
+      LOG_LEVEL: info
+    volumes:
+      - static_data:/app/static
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      API_URL: http://main-backend:8000
+      PUBLIC_BACKEND_URL: http://localhost:8000
+    depends_on:
+      main-backend:
+        condition: service_started
+    networks:
+      - backend-net
+
+volumes:
+  postgres_data:
+    name: bestiary-registry_postgres_data
+  redis_data:
+    name: bestiary-registry_redis_data
+  static_data:
+    name: bestiary-registry_static_data
+
+networks:
+  backend-net:
+    driver: bridge
