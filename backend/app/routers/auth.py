@@ -50,6 +50,12 @@ def register(username: str, password: str, session: SessionDep, role: str = "use
     return {"username": username, "status": "created"}
 
 
-@router.post("/admin/rotate-keys")
+@router.post(
+    "/admin/rotate-keys",
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Not authenticated"},
+        status.HTTP_403_FORBIDDEN: {"description": "Not authorized"},
+    },
+)
 async def rotate_keys(current_user: Annotated[dict, Depends(get_admin_user)]):
     return {"status": "keys rotated", "user": current_user["username"]}
