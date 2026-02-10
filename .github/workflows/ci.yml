@@ -62,7 +62,26 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: sqlite://
-        run: uv run python -m pytest tests/
+        run: |
+          set -o pipefail
+          uv run python -m pytest tests/ \
+            -vv \
+            --tb=short \
+            -ra \
+            --maxfail=1 \
+            --cov=app \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term-missing \
+            --junitxml=test-results.xml || { code=$?; echo "Pytest exit code: $code"; echo "Check artifacts for details."; exit $code; }
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            backend/test-results.xml
+            backend/coverage.xml
 
       - name: Run Schemathesis
         env:
