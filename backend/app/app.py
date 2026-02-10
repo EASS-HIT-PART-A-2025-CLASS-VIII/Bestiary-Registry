@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 import logging
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.concurrency import run_in_threadpool
 from app.routers import creatures, classes
 from fastapi.staticfiles import StaticFiles
 from fastapi import Request
+from sqlalchemy.exc import DataError, StatementError, IntegrityError
 import uuid
 from contextvars import ContextVar
 import os
@@ -50,6 +52,36 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+@app.exception_handler(DataError)
+async def handle_data_error(request: Request, exc: DataError):
+    req_id = request_id_context.get()
+    logger.exception(f"[{req_id}] DataError: {exc}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": "Invalid input", "request_id": req_id},
+    )
+
+
+@app.exception_handler(StatementError)
+async def handle_statement_error(request: Request, exc: StatementError):
+    req_id = request_id_context.get()
+    logger.exception(f"[{req_id}] StatementError: {exc}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": "Invalid input", "request_id": req_id},
+    )
+
+
+@app.exception_handler(IntegrityError)
+async def handle_integrity_error(request: Request, exc: IntegrityError):
+    req_id = request_id_context.get()
+    logger.exception(f"[{req_id}] IntegrityError: {exc}")
+    return JSONResponse(
+        status_code=409,
+        content={"detail": "Conflict", "request_id": req_id},
+    )
 
 
 request_id_context: ContextVar[str] = ContextVar("request_id", default="N/A")
