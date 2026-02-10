@@ -57,8 +57,8 @@ jobs:
       - name: Run Schemathesis
         env:
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/test_creatures
+          HYPOTHESIS_DISABLE_DEADLINES: "1"
         run: |
           uv run uvicorn app.app:app --host 0.0.0.0 --port 8000 &
           sleep 5
-          uv run schemathesis run http://localhost:8000/openapi.json --checks all --hypothesis-deadline None
-
+          uv run schemathesis run http://localhost:8000/openapi.json --checks all
