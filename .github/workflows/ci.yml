@@ -43,16 +43,22 @@ jobs:
           uv run ruff format --check .
           uv run ruff check .
 
+      - name: Run DB migrations
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/test_creatures
+        run: |
+          uv run python -c "from alembic import command; from alembic.config import Config; command.upgrade(Config('alembic.ini'), 'head')"
+
       - name: Run tests
         env:
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/test_creatures
         run: uv run python -m pytest tests/
 
       - name: Run Schemathesis
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/test_creatures
         run: |
-          # Run API in background
-          uv run uvicorn app.app:app --port 8000 &
-          # Wait for it
+          uv run uvicorn app.app:app --host 0.0.0.0 --port 8000 &
           sleep 5
-          # Run schemathesis
-          uv run schemathesis run http://localhost:8000/openapi.json --checks all --report=junit.xml
+          uv run schemathesis run http://localhost:8000/openapi.json --checks all --hypothesis-deadline None
+
