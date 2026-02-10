@@ -51,7 +51,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/test_creatures
+          DATABASE_URL: sqlite://
         run: uv run python -m pytest tests/
 
       - name: Run Schemathesis
