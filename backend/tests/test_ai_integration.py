@@ -5,7 +5,6 @@ from app.models import Creature
 
 from unittest.mock import patch, MagicMock
 from app.worker import generate_creature_image
-import app.db as db
 
 
 @pytest.mark.asyncio
@@ -31,9 +30,6 @@ async def test_ai_integration_flow_mocked(session):
     session.commit()
     session.refresh(creature)
     cid = creature.id
-
-    print("TEST session bind:", session.get_bind())
-    print("GLOBAL db.engine:", db.engine)
 
     # Mock httpx and file operations
     mock_response = MagicMock()
