@@ -1,14 +1,15 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field
+from pydantic import constr
 
 
 class CreatureBase(SQLModel):
-    name: str = Field(index=True, unique=True)
-    mythology: str
-    creature_type: str
-    danger_level: int
-    habitat: str = Field(default="Unknown")
-    last_modify: str = Field(default="Unknown")
+    name: constr(min_length=1) = Field(index=True, unique=True)
+    mythology: constr(min_length=1)
+    creature_type: constr(min_length=1)
+    danger_level: int = Field(ge=0, le=100)
+    habitat: constr(min_length=1) = Field(default="Unknown")
+    last_modify: constr(min_length=1) = Field(default="Unknown")
     image_url: Optional[str] = Field(default=None)
     image_status: str = Field(default="pending")  # Status: pending, ready, failed
     image_error: Optional[str] = Field(default=None)
@@ -27,7 +28,7 @@ class CreatureRead(CreatureBase):
 
 
 class CreatureClassBase(SQLModel):
-    name: str = Field(index=True, unique=True)
+    name: constr(min_length=1) = Field(index=True, unique=True)
     color: str = Field(default="rgba(127,19,236,0.1)")  # CSS background color
     border_color: str = Field(default="rgba(127,19,236,0.2)")
     text_color: str = Field(default="#ad92c9")

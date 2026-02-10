@@ -22,26 +22,24 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    op.add_column(
-        "creature",
-        sa.Column(
-            "image_status",
-            sqlmodel.sql.sqltypes.AutoString(),
-            nullable=False,
-            server_default="pending",
-        ),
-    )
-    op.add_column(
-        "creature",
-        sa.Column("image_error", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-    )
-    op.alter_column("creature", "image_url", existing_type=sa.VARCHAR(), nullable=True)
-    # op.drop_constraint(op.f('uq_creature_name'), 'creature', type_='unique')
+    with op.batch_alter_table("creature") as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "image_status",
+                sqlmodel.sql.sqltypes.AutoString(),
+                nullable=False,
+                server_default="pending",
+            )
+        )
+        batch_op.add_column(
+            sa.Column("image_error", sqlmodel.sql.sqltypes.AutoString(), nullable=True)
+        )
+        batch_op.alter_column("image_url", existing_type=sa.VARCHAR(), nullable=True)
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    # op.create_unique_constraint(op.f('uq_creature_name'), 'creature', ['name'], postgresql_nulls_not_distinct=False)
-    op.alter_column("creature", "image_url", existing_type=sa.VARCHAR(), nullable=False)
-    op.drop_column("creature", "image_error")
-    op.drop_column("creature", "image_status")
+    with op.batch_alter_table("creature") as batch_op:
+        batch_op.alter_column("image_url", existing_type=sa.VARCHAR(), nullable=False)
+        batch_op.drop_column("image_error")
+        batch_op.drop_column("image_status")

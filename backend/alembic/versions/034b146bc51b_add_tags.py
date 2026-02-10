@@ -22,7 +22,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Ensure name is unique for ForeignKey to work
-    op.create_unique_constraint("uq_creature_name", "creature", ["name"])
+    with op.batch_alter_table("creature") as batch_op:
+        batch_op.create_unique_constraint("uq_creature_name", ["name"])
 
     op.create_table(
         "tag",
@@ -48,4 +49,5 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_table("creaturetaglink")
     op.drop_table("tag")
-    op.drop_constraint("uq_creature_name", "creature", type_="unique")
+    with op.batch_alter_table("creature") as batch_op:
+        batch_op.drop_constraint("uq_creature_name", type_="unique")
