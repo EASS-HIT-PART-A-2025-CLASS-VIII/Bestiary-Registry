@@ -4,7 +4,7 @@ import httpx
 import base64
 from arq.connections import RedisSettings
 from sqlmodel import Session
-from app.db import engine
+import app.db as db
 from app.models import Creature
 from urllib.parse import urlparse
 
@@ -13,6 +13,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
 STATIC_DIR = Path(os.getenv("STATIC_DIR", BASE_DIR / "static"))
 CREATURES_DIR = Path(os.getenv("CREATURES_DIR", STATIC_DIR / "creatures"))
 
+engine = db.engine
 
 parsed = urlparse(REDIS_URL)
 host = parsed.hostname or "localhost"
