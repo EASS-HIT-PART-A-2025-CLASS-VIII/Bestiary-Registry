@@ -24,6 +24,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
 
     defaults:
       run:
@@ -57,7 +67,7 @@ jobs:
       - name: Run Schemathesis
         env:
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/test_creatures
-          HYPOTHESIS_DISABLE_DEADLINES: "1"
+          REDIS_URL: redis://localhost:6379/0
         run: |
           uv run uvicorn app.app:app --host 0.0.0.0 --port 8000 &
           sleep 5
