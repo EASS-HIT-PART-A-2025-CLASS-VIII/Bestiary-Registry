@@ -70,10 +70,8 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
         run: |
           uv run uvicorn app.app:app --host 0.0.0.0 --port 8000 &
-          sleep 5
           uv run schemathesis run http://localhost:8000/openapi.json \
             --checks all \
-            --show-errors-tracebacks \
+            --wait-for-schema 10 \
             --max-examples 10 \
-            --max-failures 1 \
-            -v
+            --max-failures 1
