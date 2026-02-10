@@ -71,4 +71,9 @@ jobs:
         run: |
           uv run uvicorn app.app:app --host 0.0.0.0 --port 8000 &
           sleep 5
-          uv run schemathesis run http://localhost:8000/openapi.json --checks all
+          uv run schemathesis run http://localhost:8000/openapi.json \
+            --checks all \
+            --show-errors-tracebacks \
+            --max-examples 10 \
+            --max-failures 1 \
+            -v
