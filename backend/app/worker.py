@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import httpx
 import base64
 from arq.connections import RedisSettings
@@ -8,6 +9,9 @@ from app.models import Creature
 from urllib.parse import urlparse
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
+STATIC_DIR = Path(os.getenv("STATIC_DIR", BASE_DIR / "static"))
+CREATURES_DIR = Path(os.getenv("CREATURES_DIR", STATIC_DIR / "creatures"))
 
 
 parsed = urlparse(REDIS_URL)
@@ -92,10 +96,9 @@ async def generate_creature_image(ctx, creature_id: int, request_id: str | None 
                 raise ValueError("No image_base64 in response")
 
             # Save file
-            save_dir = "/app/static/creatures"
-            os.makedirs(save_dir, exist_ok=True)
+            CREATURES_DIR.mkdir(parents=True, exist_ok=True)
             filename = f"{creature_id}.png"
-            file_path = os.path.join(save_dir, filename)
+            file_path = CREATURES_DIR / filename
 
             with open(file_path, "wb") as f:
                 f.write(base64.b64decode(image_b64))

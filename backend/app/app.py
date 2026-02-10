@@ -10,6 +10,7 @@ from contextvars import ContextVar
 import os
 from app.routers import auth
 from app.routers import tags
+from pathlib import Path
 
 
 # Configure logging
@@ -69,14 +70,17 @@ async def log_exceptions(request: Request, call_next):
         request_id_context.reset(token)
 
 
-os.makedirs("/app/static/creatures", exist_ok=True)
-app.mount("/static", StaticFiles(directory="/app/static"), name="static")
+BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
+STATIC_DIR = Path(os.getenv("STATIC_DIR", BASE_DIR / "static"))
+CREATURES_DIR = Path(os.getenv("CREATURES_DIR", STATIC_DIR / "creatures"))
+
+CREATURES_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
 
 app.include_router(creatures.router)
 app.include_router(classes.router)
-
 app.include_router(auth.router)
-
 app.include_router(tags.router)
 
 
