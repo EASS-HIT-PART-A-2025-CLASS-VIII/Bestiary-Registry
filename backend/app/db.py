@@ -5,14 +5,14 @@ from sqlmodel import Session, SQLModel, create_engine
 
 # Database setup.
 # Uses `DATABASE_URL` environment variable, defaulting to SQLite for local development.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///creatures.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./creatures.db")
 
 connect_args = {}
 if DATABASE_URL.startswith("sqlite"):
     # SQLite-specific configuration for thread safety.
     connect_args = {"check_same_thread": False}
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
 
 
 def create_db_and_tables():

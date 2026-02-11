@@ -10,7 +10,8 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-import sqlmodel
+
+from sqlalchemy import inspect
 
 
 # revision identifiers, used by Alembic.
@@ -21,20 +22,22 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
-    with op.batch_alter_table("creature") as batch_op:
-        batch_op.add_column(
+    bind = op.get_bind()
+    cols = {c["name"] for c in inspect(bind).get_columns("creature")}
+
+    if "image_status" not in cols:
+        op.add_column(
+            "creature",
             sa.Column(
-                "image_status",
-                sqlmodel.sql.sqltypes.AutoString(),
-                nullable=False,
-                server_default="pending",
-            )
+                "image_status", sa.String(), nullable=False, server_default="pending"
+            ),
         )
-        batch_op.add_column(
-            sa.Column("image_error", sqlmodel.sql.sqltypes.AutoString(), nullable=True)
+
+    if "image_error" not in cols:
+        op.add_column(
+            "creature",
+            sa.Column("image_error", sa.String(), nullable=True),
         )
-        batch_op.alter_column("image_url", existing_type=sa.VARCHAR(), nullable=True)
 
 
 def downgrade() -> None:

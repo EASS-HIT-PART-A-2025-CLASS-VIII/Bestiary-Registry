@@ -22,20 +22,17 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Execute database migrations.
-    # In production, this may be handled by an initialization container.
     try:
         from alembic import command
         from alembic.config import Config
+        from pathlib import Path
 
-        alembic_cfg = Config("alembic.ini")
-        # Ensure the worker has access to the database URL environment variable.
+        base_dir = Path(__file__).resolve().parents[1]  # backend/
+        alembic_cfg = Config(str(base_dir / "alembic.ini"))
+
         logger.info("Running DB migrations...")
         await run_in_threadpool(lambda: command.upgrade(alembic_cfg, "head"))
         logger.info("DB migrations verified.")
-
-        # Optional: Seed initial data if enabled.
-        import os
 
         if os.getenv("SEED", "false").lower() == "true":
             logger.info("Seeding data...")
@@ -45,8 +42,8 @@ async def lifespan(app: FastAPI):
             logger.info("Seeding complete.")
 
     except Exception as e:
-        logger.error(f"Migration/Seed failed: {e}")
-        # Log failure but allow startup to proceed depending on policy.
+        logger.exception(f"Migration/Seed failed: {e}")
+        raise  # fail-fast (חשוב ל-CI)
 
     yield
 
@@ -60,7 +57,12 @@ async def handle_data_error(request: Request, exc: DataError):
     logger.exception(f"[{req_id}] DataError: {exc}")
     return JSONResponse(
         status_code=422,
-        content={"detail": "Invalid input", "request_id": req_id},
+        content={
+            "detail": [
+                {"loc": ["body"], "msg": "Invalid input", "type": "value_error"}
+            ],
+            "request_id": req_id,
+        },
     )
 
 
@@ -70,7 +72,12 @@ async def handle_statement_error(request: Request, exc: StatementError):
     logger.exception(f"[{req_id}] StatementError: {exc}")
     return JSONResponse(
         status_code=422,
-        content={"detail": "Invalid input", "request_id": req_id},
+        content={
+            "detail": [
+                {"loc": ["body"], "msg": "Invalid input", "type": "value_error"}
+            ],
+            "request_id": req_id,
+        },
     )
 
 
