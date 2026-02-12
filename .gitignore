@@ -26,3 +26,13 @@ seed_remote.py
 backend/test_report.txt
 backend/.hypothesis/
 .hypothesis/
+
+# Backups
+*.bak
+
+# API Specs
+openapi.json
+
+# Debug artifacts
+debug_*.py
+debug_*.txt
