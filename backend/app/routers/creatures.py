@@ -12,6 +12,7 @@ MAX_INT32 = 2_147_483_647
     "/",
     response_model=CreatureRead,
     responses={
+        400: {"description": "Malformed JSON body"},
         409: {"description": "Creature already exists"},
     },
 )

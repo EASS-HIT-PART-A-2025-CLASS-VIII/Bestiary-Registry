@@ -55,6 +55,7 @@ def delete_class(session: SessionDep, class_id: int = Path(..., ge=1, le=MAX_INT
     "/{class_id}",
     response_model=CreatureClassRead,
     responses={
+        400: {"description": "Malformed JSON body"},
         404: {"description": "Class not found"},
         409: {"description": "Conflict"},
     },

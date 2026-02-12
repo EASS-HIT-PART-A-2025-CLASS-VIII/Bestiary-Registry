@@ -8,12 +8,16 @@ from pydantic import ConfigDict
 
 
 NonEmptyStr = constr(min_length=1, strip_whitespace=True)
+NON_BLANK_PATTERN = r"^.*\S.*$"
 
 
 class CreatureBase(SQLModel):
-    name: NonEmptyStr = Field(index=True, unique=True)
-    mythology: NonEmptyStr
-    creature_type: NonEmptyStr
+    name: Annotated[NonEmptyStr, PydField(pattern=NON_BLANK_PATTERN)] = Field(
+        index=True,
+        unique=True,
+    )
+    mythology: Annotated[NonEmptyStr, PydField(pattern=NON_BLANK_PATTERN)] = Field()
+    creature_type: Annotated[NonEmptyStr, PydField(pattern=NON_BLANK_PATTERN)] = Field()
     danger_level: Annotated[int, PydField(ge=1, le=10, multiple_of=1, strict=True)] = (
         Field()
     )
@@ -29,8 +33,12 @@ class CreatureBase(SQLModel):
             raise ValueError("danger_level must be an integer")
         return v
 
-    habitat: NonEmptyStr = Field(default="Unknown")
-    last_modify: NonEmptyStr = Field(default="Unknown")
+    habitat: Annotated[NonEmptyStr, PydField(pattern=NON_BLANK_PATTERN)] = Field(
+        default="Unknown"
+    )
+    last_modify: Annotated[NonEmptyStr, PydField(pattern=NON_BLANK_PATTERN)] = Field(
+        default="Unknown"
+    )
     image_url: Optional[str] = Field(default=None)
     image_status: str = Field(default="pending")  # Status: pending, ready, failed
     image_error: Optional[str] = Field(default=None)
@@ -74,7 +82,7 @@ class CreatureClassUpdate(SQLModel):
     text_color: Optional[NonEmptyStr] = None
 
     model_config = ConfigDict(
-        json_schema_extra={
+        schema_extra={
             "type": "object",
             "additionalProperties": False,
             "properties": {
