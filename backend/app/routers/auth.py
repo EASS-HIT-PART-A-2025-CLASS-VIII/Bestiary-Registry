@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status, Form
+from sqlmodel import select
 
 
 from app.auth import (
@@ -35,7 +36,7 @@ async def login_for_access_token(
     username: str = Form(..., min_length=1),
     password: str = Form(..., min_length=1),
 ):
-    user = session.get(User, username)
+    user = session.exec(select(User).where(User.username == username)).first()
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -58,12 +59,13 @@ async def login_for_access_token(
     },
 )
 def register(username: str, password: str, session: SessionDep, role: str = "user"):
-    existing = session.get(User, username)
+    existing = session.exec(select(User).where(User.username == username)).first()
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already exists",
         )
+
     hashed = get_password_hash(password)
     user = User(username=username, hashed_password=hashed, role=role)
     session.add(user)
