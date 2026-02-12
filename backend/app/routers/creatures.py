@@ -28,30 +28,39 @@ def get_creatures_endpoint(session: SessionDep) -> list[CreatureRead]:
     return service.list_creatures(session)
 
 
-@router.get("/{creature_id}", response_model=CreatureRead)
+@router.get(
+    "/{creature_id}",
+    response_model=CreatureRead,
+    responses={404: {"description": "Creature not found"}},
+)
 def get_creature_endpoint(
     creature_id: int = Path(..., ge=1, le=MAX_INT32),
-    session: SessionDep = None,
+    session: SessionDep = ...,
 ) -> CreatureRead:
     """Retrieve a specific creature by ID."""
     return service.get_creature(session, creature_id)
 
 
-@router.put("/{creature_id}", response_model=CreatureRead)
+@router.put(
+    "/{creature_id}",
+    response_model=CreatureRead,
+    responses={404: {"description": "Creature not found"}},
+)
 def update_creature_endpoint(
     creature_id: int = Path(..., ge=1, le=MAX_INT32),
-    creature: CreatureCreate = None,
-    session: SessionDep = None,
+    creature: CreatureCreate = ...,
+    session: SessionDep = ...,
 ) -> CreatureRead:
-    """Update a creature's details."""
     return service.update_creature(session, creature_id, creature)
 
 
-@router.delete("/{creature_id}")
+@router.delete(
+    "/{creature_id}",
+    responses={404: {"description": "Creature not found"}},
+)
 def delete_creature_endpoint(
     creature_id: int = Path(..., ge=1, le=MAX_INT32),
-    session: SessionDep = None,
+    session: SessionDep = ...,
 ) -> dict:
-    """Delete a creature."""
     service.delete_creature(session, creature_id)
     return {"detail": "creature deleted successfully"}

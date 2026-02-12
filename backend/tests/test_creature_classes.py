@@ -47,7 +47,7 @@ def test_create_duplicate_class(client: TestClient):
     payload = {"name": "Unique Class", "color": "#000", "text_color": "#fff"}
     client.post("/classes/", json=payload)
     response = client.post("/classes/", json=payload)
-    assert response.status_code == 400
+    assert response.status_code == 409
     assert response.json()["detail"] == "Class already exists"
 
 
@@ -86,7 +86,7 @@ def test_delete_class(client: TestClient):
     class_id = c_res.json()["id"]
 
     res = client.delete(f"/classes/{class_id}")
-    assert res.status_code == 200
+    assert res.status_code == 204
 
 
 # Error Handling Tests (404)

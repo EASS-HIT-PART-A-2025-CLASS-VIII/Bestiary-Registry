@@ -14,7 +14,7 @@ def create_class(session: Session, class_data: CreatureClassCreate) -> CreatureC
         select(CreatureClass).where(CreatureClass.name == class_data.name)
     ).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Class already exists")
+        raise HTTPException(status_code=409, detail="Class already exists")
 
     db_class = CreatureClass.model_validate(class_data)
     session.add(db_class)
@@ -44,10 +44,15 @@ def update_class(
 
     old_name = db_class.name
     update_data = class_update.model_dump(exclude_unset=True)
+    update_data = {
+        k: v for k, v in update_data.items() if v is not None
+    }  # ignore nulls
 
-    # Detect name change.
+    if not update_data:
+        return db_class  # no-op
+
     new_name = update_data.get("name")
-    name_changed = new_name and new_name != old_name
+    name_changed = bool(new_name) and new_name != old_name
 
     for key, value in update_data.items():
         setattr(db_class, key, value)

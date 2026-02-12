@@ -109,7 +109,7 @@ jobs:
             --exclude-checks negative_data_rejection \
             --wait-for-schema 30 \
             --max-examples 10 \
-            --max-failures 20 \
+            --max-failures 1 \
             --seed 175685659251019914541353035876906163093 \
             --exclude-path-regex "^/admin/.*"
 

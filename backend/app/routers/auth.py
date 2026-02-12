@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, status, Form
+
 
 from app.auth import (
     create_access_token,
@@ -16,13 +16,27 @@ from app.models import User
 router = APIRouter(tags=["auth"])
 
 
-@router.post("/token")
+@router.post(
+    "/token",
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Incorrect username or password",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Incorrect username or password"}
+                }
+            },
+        }
+    },
+)
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: SessionDep
+    session: SessionDep,
+    username: str = Form(..., min_length=1),
+    password: str = Form(..., min_length=1),
 ):
-    # Authenticate user credentials.
-    user = session.get(User, form_data.username)
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    user = session.get(User, username)
+    if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -37,12 +51,19 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/register")
+@router.post(
+    "/register",
+    responses={
+        status.HTTP_409_CONFLICT: {"description": "User already exists"},
+    },
+)
 def register(username: str, password: str, session: SessionDep, role: str = "user"):
     existing = session.get(User, username)
     if existing:
-        raise HTTPException(status_code=400, detail="User already exists")
-
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User already exists",
+        )
     hashed = get_password_hash(password)
     user = User(username=username, hashed_password=hashed, role=role)
     session.add(user)

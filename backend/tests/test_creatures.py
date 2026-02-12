@@ -99,7 +99,7 @@ def test_update_creature_not_found(client: TestClient):
         "name": "Ghost",
         "mythology": "None",
         "creature_type": "Spirit",
-        "danger_level": 0,
+        "danger_level": 5,
     }
     response = client.put("/creatures/99999", json=payload)
     assert response.status_code == 404

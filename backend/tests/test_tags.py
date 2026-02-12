@@ -9,8 +9,14 @@ def test_tags_flow(client: TestClient):
     assert response.status_code == 200
     assert response.json()["name"] == "Fire"
 
+    # 1b. Duplicate tag creation should conflict
+    response = client.post("/tags", json={"name": "Fire"})
+    assert response.status_code == 409
+    # If your API uses a different message, adjust this set accordingly
+    assert response.json()["detail"] in {"Tag already exists", "tag already exists"}
+
     # 2. Create Creature
-    client.post(
+    c_res = client.post(
         "/creatures/",
         json={
             "name": "Dragon",
@@ -20,15 +26,14 @@ def test_tags_flow(client: TestClient):
             "habitat": "Cave",
         },
     )
+    assert c_res.status_code == 200
 
     # 3. Add Tag to Creature
     response = client.post("/creatures/Dragon/tags/Fire")
     assert response.status_code == 200
     assert response.json()["status"] == "tagged"
 
-    # Verify tagging status (implicit check via response status).
-
-    # Test duplicate tag
+    # 4. Duplicate tagging should conflict
     response = client.post("/creatures/Dragon/tags/Fire")
-    assert response.status_code == 200
-    assert response.json()["status"] == "already tagged"
+    assert response.status_code == 409
+    assert response.json()["detail"] in {"Already tagged", "already tagged"}
