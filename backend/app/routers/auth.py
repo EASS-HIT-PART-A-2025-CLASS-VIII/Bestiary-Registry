@@ -1,7 +1,8 @@
 from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, status, Form
 from sqlmodel import select
+from pydantic import BaseModel, Field
 
 
 from app.auth import (
@@ -15,6 +16,12 @@ from app.db import SessionDep
 from app.models import User
 
 router = APIRouter(tags=["auth"])
+
+
+class RegisterRequest(BaseModel):
+    username: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=1)
+    role: Literal["user", "admin"] = "user"
 
 
 @router.post(
@@ -55,10 +62,16 @@ async def login_for_access_token(
 @router.post(
     "/register",
     responses={
+        status.HTTP_400_BAD_REQUEST: {"description": "Invalid JSON body"},
         status.HTTP_409_CONFLICT: {"description": "User already exists"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Validation error"},
     },
 )
-def register(username: str, password: str, session: SessionDep, role: str = "user"):
+def register(payload: RegisterRequest, session: SessionDep):
+    username = payload.username
+    password = payload.password
+    role = payload.role
+
     existing = session.exec(select(User).where(User.username == username)).first()
     if existing:
         raise HTTPException(
